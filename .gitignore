@@ -1,0 +1,7 @@
+# Local Kubernetes credentials and machine-specific configuration
+*.kubeconfig
+kubeconfig
+kubeconfig.yaml
+secrets*.yaml
+.env
+.env.*
