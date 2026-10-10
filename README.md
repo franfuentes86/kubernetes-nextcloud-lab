@@ -24,7 +24,7 @@ kubectl -n nextcloud create secret generic nextcloud-credentials \
   --from-literal=admin-password='REPLACE_WITH_STRONG_NEXTCLOUD_ADMIN_PASSWORD'
 ```
 
-Then apply the storage and workloads:
+Then apply the storage and workloads. Start with one Nextcloud replica so first-run setup happens once:
 
 ```sh
 kubectl apply -f k8s/10-storage.yaml
@@ -32,10 +32,14 @@ kubectl apply -f k8s/20-workloads.yaml
 kubectl -n nextcloud rollout status deployment/mariadb
 kubectl -n nextcloud rollout status deployment/redis
 kubectl -n nextcloud rollout status deployment/nextcloud
-kubectl -n nextcloud get pods,pvc,svc
 ```
 
-The first Nextcloud pod initializes the shared data directory. The other replicas wait for the database and shared files. For a new install, wait for initialization to finish before logging in.
+After Nextcloud is ready and you can log in, scale the web deployment to three pods:
+
+```sh
+kubectl -n nextcloud scale deployment/nextcloud --replicas=3
+kubectl -n nextcloud get pods,pvc,svc
+```
 
 ## Storage notes
 
@@ -54,7 +58,7 @@ kubectl -n nextcloud scale deployment/nextcloud --replicas=3
 kubectl -n nextcloud get secret nextcloud-credentials
 ```
 
-The last command shows Secret metadata only; avoid printing or sharing Secret data. To see the admin password later, retrieve the `admin-password` key locally and keep it private.
+The last command shows Secret metadata only; avoid printing or sharing Secret data. Retrieve the `admin-password` key locally only if needed, and keep it private.
 
 ## Network troubleshooting
 
@@ -64,5 +68,5 @@ K3s pulls images from registries such as Docker Hub. If name lookup fails on the
 
 - `k8s/00-namespace.yaml`: namespace
 - `k8s/10-storage.yaml`: shared Nextcloud PV/PVC
-- `k8s/20-workloads.yaml`: MariaDB, Redis, and three Nextcloud replicas
+- `k8s/20-workloads.yaml`: MariaDB, Redis, and Nextcloud deployment/service
 - `.gitignore`: excludes local secret/config artifacts
