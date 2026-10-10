@@ -1,0 +1,27 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: nextcloud-shared
+spec:
+  capacity:
+    storage: 8Gi
+  accessModes:
+    - ReadWriteMany
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: nextcloud-rwx
+  hostPath:
+    path: /var/lib/nextcloud-k8s/html
+    type: DirectoryOrCreate
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: nextcloud-html
+  namespace: nextcloud
+spec:
+  accessModes:
+    - ReadWriteMany
+  storageClassName: nextcloud-rwx
+  resources:
+    requests:
+      storage: 8Gi
